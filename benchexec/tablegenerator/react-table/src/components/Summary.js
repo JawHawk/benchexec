@@ -5,8 +5,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from "react";
+import React, { useMemo } from "react";
 import StatisticsTable from "./StatisticsTable";
+import { useFlexLayout, useResizeColumns, useTable } from "react-table";
 
 const infos = [
   "displayName",
@@ -24,10 +25,12 @@ const infos = [
 
 const Summary = (props) => {
   /* ++++++++++++++ Helper functions ++++++++++++++ */
-
   const renderOptions = (text) => {
     return text.split(/[\s]+-/).map((option, i) => (
-      <li key={option}>
+      <li
+        key={option}
+        style={{ textAlign: "left", fontSize: "9pt", listStyle: "none" }}
+      >
         <code>{i === 0 ? option : `-${option}`}</code>
       </li>
     ));
@@ -80,11 +83,115 @@ const Summary = (props) => {
     );
   };
 
+  const BenchmarkCols = useMemo(() => {
+    let colArray = [];
+
+    infos.forEach((row) => {
+      let tableHeaderRow = props.tableHeader[row];
+      if (tableHeaderRow) {
+        colArray.push({
+          accessor: tableHeaderRow.id,
+          Header: tableHeaderRow.name,
+        });
+      }
+    });
+
+    return colArray;
+  }, [props.tableHeader]);
+
+  const BenchmarkData = useMemo(() => {
+    let dataArray = [];
+
+    infos.forEach((row) => {
+      let tableHeaderRow = props.tableHeader[row];
+      if (tableHeaderRow) {
+        tableHeaderRow.content.forEach((cont, index) => {
+          let dataElement = dataArray[index];
+          if (dataElement) {
+            dataArray[index] = {
+              ...dataElement,
+              [tableHeaderRow.id]: cont[0],
+              colspan: { ...dataElement.colspan, [tableHeaderRow.id]: cont[1] },
+            };
+          } else {
+            dataArray[index] = {
+              [tableHeaderRow.id]: cont[0],
+              colspan: { [tableHeaderRow.id]: cont[1] },
+            };
+          }
+        });
+      }
+    });
+    return dataArray;
+  }, [props.tableHeader]);
+
+  const { getTableProps, getTableBodyProps, headers, rows, prepareRow } =
+    useTable(
+      { columns: BenchmarkCols, data: BenchmarkData },
+      useFlexLayout,
+      useResizeColumns,
+    );
+
   return (
     <div id="summary">
       <div id="benchmark_setup">
         <h2>Benchmark Setup</h2>
-        <table>
+        {/* <MyTable /> */}
+        <table {...getTableProps()} style={{ border: "1px solid black" }}>
+          <tbody {...getTableBodyProps()}>
+            {headers.map((col, index) => {
+              return (
+                <tr key={index}>
+                  <th {...col.getHeaderProps()}>
+                    {col.render("Header")}
+                    <div
+                      {...col.getResizerProps()}
+                      style={{
+                        cursor: "col-resize",
+                        display: "inline-block",
+                        background: "gray",
+                        width: "2px",
+                        height: "100%",
+                        position: "absolute",
+                        right: 0,
+                        top: 0,
+                        zIndex: 1,
+                        transform: "translateX(50%)",
+                      }}
+                    />
+                  </th>
+
+                  {rows.map((row, index) => {
+                    prepareRow(row);
+                    return (
+                      row.values[col.id] && (
+                        <td
+                          key={index}
+                          colSpan={
+                            (row.original.colspan &&
+                              row.original.colspan[col.id]) ||
+                            1
+                          }
+                        >
+                          {col.id === "options" ? (
+                            <ul style={{ margin: 0, paddingLeft: 17 }}>
+                              {renderOptions(row.values[col.id])}
+                            </ul>
+                          ) : col.id === "tool" ? (
+                            renderToolNameAndVersion(row.values[col.id])
+                          ) : (
+                            row.values[col.id]
+                          )}
+                        </td>
+                      )
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {/* <table >
           <tbody>
             {infos
               .map((row) => props.tableHeader[row])
@@ -98,7 +205,7 @@ const Summary = (props) => {
                 </tr>
               ))}
           </tbody>
-        </table>
+        </table> */}
       </div>
       <StatisticsTable
         selectColumn={props.selectColumn}
