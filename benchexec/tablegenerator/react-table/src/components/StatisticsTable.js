@@ -257,16 +257,26 @@ const StatisticsTable = ({
     });
 
     const statColumns = tools
-      .map((runSet, runSetIdx) =>
-        createRunSetColumns(
-          runSet,
-          runSetIdx,
-          createColumnBuilder({ switchToQuantile, hiddenCols }),
-        ),
+      .map(
+        (runSet, runSetIdx) => {
+          return runSet.columns.map((column, columnIdx) =>
+            createColumnBuilder({ switchToQuantile, hiddenCols })(
+              runSetIdx,
+              column,
+              columnIdx,
+            ),
+          );
+        },
+        // createRunSetColumns(
+        //   runSet,
+        //   runSetIdx,
+        //   createColumnBuilder({ switchToQuantile, hiddenCols }),
+        // ),
       )
       .flat();
 
-    return [createRowTitleColumn()].concat(statColumns);
+    return statColumns;
+    // return [createRowTitleColumn()].concat(statColumns);
   }, [
     filtered,
     isTitleColSticky,
@@ -283,9 +293,9 @@ const StatisticsTable = ({
       {
         columns,
         data,
-        initialState: {
-          hiddenColumns: getHiddenColIds(columns),
-        },
+        // initialState: {
+        //   hiddenColumns: getHiddenColIds(columns),
+        // },
       },
       useFilters,
       useResizeColumns,
@@ -295,7 +305,7 @@ const StatisticsTable = ({
 
   return (
     <div id="statistics">
-      <h2>Statistics</h2>
+      {/* <h2>Statistics</h2> */}
       {renderTable(headerGroups, rows)}
     </div>
   );

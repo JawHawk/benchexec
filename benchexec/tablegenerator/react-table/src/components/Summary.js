@@ -8,6 +8,8 @@
 import React, { useMemo } from "react";
 import StatisticsTable from "./StatisticsTable";
 import { useFlexLayout, useResizeColumns, useTable } from "react-table";
+import { statisticsRows } from "../utils/stats";
+import { SelectColumnsButton } from "./TableComponents";
 
 const infos = [
   "displayName",
@@ -92,12 +94,40 @@ const Summary = (props) => {
         colArray.push({
           accessor: tableHeaderRow.id,
           Header: tableHeaderRow.name,
+          minWidth: 280,
         });
       }
     });
 
+    colArray.push({
+      Header: (
+        <div style={{ height: 38 }}>
+          <SelectColumnsButton handler={() => {}} />
+        </div>
+      ),
+      id: "columnselect",
+      minWidth: 100,
+      statisticTable: true,
+    });
+
+    for (const stat in props.stats) {
+      if (props.stats[stat].title) {
+        colArray.push({
+          Header: props.stats[stat].title,
+          stats: true,
+        });
+      } else {
+        colArray.push({
+          Header:
+            "\xa0".repeat(4 * statisticsRows[props.stats[stat].id].indent) +
+            statisticsRows[props.stats[stat].id].title,
+          stats: true,
+        });
+      }
+    }
+
     return colArray;
-  }, [props.tableHeader]);
+  }, [props.tableHeader, props.stats]);
 
   const BenchmarkData = useMemo(() => {
     let dataArray = [];
@@ -136,7 +166,7 @@ const Summary = (props) => {
     <div id="summary">
       <div id="benchmark_setup">
         <h2>Benchmark Setup</h2>
-        {/* <MyTable /> */}
+        {/* Benchmark Setup Table using react-table  */}
         <table {...getTableProps()} style={{ border: "1px solid black" }}>
           <tbody {...getTableBodyProps()}>
             {headers.map((col, index) => {
@@ -156,41 +186,58 @@ const Summary = (props) => {
                         right: 0,
                         top: 0,
                         zIndex: 1,
-                        transform: "translateX(50%)",
+                        // transform: "translateX(50%)",
                       }}
                     />
                   </th>
 
-                  {rows.map((row, index) => {
-                    prepareRow(row);
-                    return (
-                      row.values[col.id] && (
-                        <td
-                          key={index}
-                          colSpan={
-                            (row.original.colspan &&
-                              row.original.colspan[col.id]) ||
-                            1
-                          }
-                        >
-                          {col.id === "options" ? (
-                            <ul style={{ margin: 0, paddingLeft: 17 }}>
-                              {renderOptions(row.values[col.id])}
-                            </ul>
-                          ) : col.id === "tool" ? (
-                            renderToolNameAndVersion(row.values[col.id])
-                          ) : (
-                            row.values[col.id]
-                          )}
-                        </td>
-                      )
-                    );
-                  })}
+                  {col.statisticTable ? (
+                    <td style={{ padding: 0 }} rowSpan={infos.length}>
+                      <StatisticsTable
+                        selectColumn={props.selectColumn}
+                        tools={props.tools}
+                        switchToQuantile={props.switchToQuantile}
+                        hiddenCols={props.hiddenCols}
+                        tableData={props.tableData}
+                        onStatsReady={props.onStatsReady}
+                        stats={props.stats}
+                        filtered={props.filtered}
+                      />
+                    </td>
+                  ) : (
+                    !col.stats &&
+                    rows.map((row, index) => {
+                      prepareRow(row);
+                      return (
+                        row.values[col.id] && (
+                          <td
+                            key={index}
+                            colSpan={
+                              (row.original.colspan &&
+                                row.original.colspan[col.id]) ||
+                              1
+                            }
+                          >
+                            {col.id === "options" ? (
+                              <ul style={{ margin: 0, paddingLeft: 17 }}>
+                                {renderOptions(row.values[col.id])}
+                              </ul>
+                            ) : col.id === "tool" ? (
+                              renderToolNameAndVersion(row.values[col.id])
+                            ) : (
+                              row.values[col.id]
+                            )}
+                          </td>
+                        )
+                      );
+                    })
+                  )}
                 </tr>
               );
             })}
           </tbody>
         </table>
+        {/* Benchmark HTML table */}
         {/* <table >
           <tbody>
             {infos
@@ -207,7 +254,7 @@ const Summary = (props) => {
           </tbody>
         </table> */}
       </div>
-      <StatisticsTable
+      {/* <StatisticsTable
         selectColumn={props.selectColumn}
         tools={props.tools}
         switchToQuantile={props.switchToQuantile}
@@ -216,7 +263,7 @@ const Summary = (props) => {
         onStatsReady={props.onStatsReady}
         stats={props.stats}
         filtered={props.filtered}
-      />
+      /> */}
       <p>
         Generated by{" "}
         <a
