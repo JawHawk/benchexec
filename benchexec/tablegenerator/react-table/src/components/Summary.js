@@ -6,7 +6,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useMemo, useState } from "react";
-import StatisticsTable from "./StatisticsTable";
 import { useFlexLayout, useResizeColumns, useTable } from "react-table";
 import { statisticsRows } from "../utils/stats";
 import { SelectColumnsButton } from "./TableComponents";
@@ -68,25 +67,25 @@ const Summary = (props) => {
 
   /* ++++++++++++++ Table render functions ++++++++++++++ */
 
-  const renderRow = (row, text, colSpan, j) => {
-    const isOptionRow = row === "options";
-    const isToolRow = row === "tool";
-    return (
-      <td
-        colSpan={colSpan}
-        key={text + j}
-        className={`header__tool-row${isOptionRow && " options"}`}
-      >
-        {isOptionRow ? (
-          <ul>{renderOptions(text)}</ul>
-        ) : isToolRow ? (
-          renderToolNameAndVersion(text)
-        ) : (
-          text
-        )}
-      </td>
-    );
-  };
+  // const renderRow = (row, text, colSpan, j) => {
+  //   const isOptionRow = row === "options";
+  //   const isToolRow = row === "tool";
+  //   return (
+  //     <td
+  //       colSpan={colSpan}
+  //       key={text + j}
+  //       className={`header__tool-row${isOptionRow && " options"}`}
+  //     >
+  //       {isOptionRow ? (
+  //         <ul>{renderOptions(text)}</ul>
+  //       ) : isToolRow ? (
+  //         renderToolNameAndVersion(text)
+  //       ) : (
+  //         text
+  //       )}
+  //     </td>
+  //   );
+  // };
 
   const BenchmarkCols = useMemo(() => {
     let colArray = [];
