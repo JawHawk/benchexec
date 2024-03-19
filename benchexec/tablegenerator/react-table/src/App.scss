@@ -500,9 +500,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
             .th {
               padding: 8px;
 
-              &:not(:first-of-type) {
+              // &:not(:first-of-type) {
                 border-right: 1px solid rgba(0, 0, 0, 0.05);
-              }
+              // }
 
               &.outer {
                 text-overflow: ellipsis;

@@ -10,6 +10,7 @@ import StatisticsTable from "./StatisticsTable";
 import { useFlexLayout, useResizeColumns, useTable } from "react-table";
 import { statisticsRows } from "../utils/stats";
 import { SelectColumnsButton } from "./TableComponents";
+import NewStatisticsTable from "./NewStatisticsTable";
 
 const infos = [
   "displayName",
@@ -106,6 +107,7 @@ const Summary = (props) => {
         </div>
       ),
       id: "columnselect",
+      accessor: "columnselect",
       minWidth: 100,
       statisticTable: true,
     });
@@ -132,28 +134,35 @@ const Summary = (props) => {
   const BenchmarkData = useMemo(() => {
     let dataArray = [];
 
+    props.tools.forEach((runSet, runSetIndex) => {
+      dataArray.push({
+        colspan: {
+          columnselect: props.tableHeader.tool.content[runSetIndex][1],
+        },
+        columnselect: {
+          runSet,
+          runSetIndex: runSetIndex,
+          runSetStats: props.stats,
+        },
+      });
+    });
+
     infos.forEach((row) => {
       let tableHeaderRow = props.tableHeader[row];
       if (tableHeaderRow) {
         tableHeaderRow.content.forEach((cont, index) => {
           let dataElement = dataArray[index];
-          if (dataElement) {
-            dataArray[index] = {
-              ...dataElement,
-              [tableHeaderRow.id]: cont[0],
-              colspan: { ...dataElement.colspan, [tableHeaderRow.id]: cont[1] },
-            };
-          } else {
-            dataArray[index] = {
-              [tableHeaderRow.id]: cont[0],
-              colspan: { [tableHeaderRow.id]: cont[1] },
-            };
-          }
+          dataArray[index] = {
+            ...dataElement,
+            [tableHeaderRow.id]: cont[0],
+            colspan: { ...dataElement.colspan, [tableHeaderRow.id]: cont[1] },
+          };
         });
       }
     });
+
     return dataArray;
-  }, [props.tableHeader]);
+  }, [props.tableHeader, props.tools, props.stats]);
 
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } =
     useTable(
@@ -190,48 +199,41 @@ const Summary = (props) => {
                       }}
                     />
                   </th>
-
-                  {col.statisticTable ? (
-                    <td style={{ padding: 0 }} rowSpan={infos.length}>
-                      <StatisticsTable
-                        selectColumn={props.selectColumn}
-                        tools={props.tools}
-                        switchToQuantile={props.switchToQuantile}
-                        hiddenCols={props.hiddenCols}
-                        tableData={props.tableData}
-                        onStatsReady={props.onStatsReady}
-                        stats={props.stats}
-                        filtered={props.filtered}
-                      />
-                    </td>
-                  ) : (
-                    !col.stats &&
+                  {!col.stats &&
                     rows.map((row, index) => {
                       prepareRow(row);
+                      if (row.values[col.id] === undefined) {
+                        return null;
+                      }
                       return (
-                        row.values[col.id] && (
-                          <td
-                            key={index}
-                            colSpan={
-                              (row.original.colspan &&
-                                row.original.colspan[col.id]) ||
-                              1
-                            }
-                          >
-                            {col.id === "options" ? (
-                              <ul style={{ margin: 0, paddingLeft: 17 }}>
-                                {renderOptions(row.values[col.id])}
-                              </ul>
-                            ) : col.id === "tool" ? (
-                              renderToolNameAndVersion(row.values[col.id])
-                            ) : (
-                              row.values[col.id]
-                            )}
-                          </td>
-                        )
+                        <td
+                          key={index}
+                          colSpan={
+                            (row.original.colspan &&
+                              row.original.colspan[col.id]) ||
+                            1
+                          }
+                          rowSpan={col.id === "columnselect" ? infos.length : 1}
+                          style={{ padding: col.id === "columnselect" && 0 }}
+                        >
+                          {col.id === "columnselect" ? (
+                            <NewStatisticsTable
+                              key={index}
+                              tableData={row.values[col.id]}
+                              switchToQuantile={props.switchToQuantile}
+                            />
+                          ) : col.id === "options" ? (
+                            <ul style={{ margin: 0, paddingLeft: 17 }}>
+                              {renderOptions(row.values[col.id])}
+                            </ul>
+                          ) : col.id === "tool" ? (
+                            renderToolNameAndVersion(row.values[col.id])
+                          ) : (
+                            row.values[col.id]
+                          )}
+                        </td>
                       );
-                    })
-                  )}
+                    })}
                 </tr>
               );
             })}
