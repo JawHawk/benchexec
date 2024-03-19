@@ -424,14 +424,21 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
 //------------------summary------------------
 #summary {
-  padding-top: 30px;
+  padding-top: 10px;
   text-align: center;
 
   #benchmark_setup {
     width: 100%;
     overflow-x: scroll;
     margin: 40px 0;
-
+    
+    #stickyform {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      position: sticky;
+      left: 0;
+    }
     table {
       border-collapse: collapse;
       width: 100%;
@@ -459,14 +466,33 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       th {
         font-weight: bold;
       }
+      th {
+        background-color: white;
+
+        &.sticky {
+          position: sticky !important;
+          left: 0;
+          z-index: 11;
+        }
+      }
 
       tr:nth-child(even) {
         background-color: mix($hover-color, white, 33%);
+        th {
+          background-color: mix($hover-color, white, 33%);
+        }
       }
 
       tr:hover {
-        background-color: mix($hover-color, white, 66%);
+        background-color: mix($hover-color, white, 66%) ;
+        th {
+        background-color: mix($hover-color, white, 66%) ;
+        }
       }
+
+      // th:hover {
+      //   background-color: mix($hover-color, white, 66%);
+      // }
 
       th {
         padding-top: 8px;

@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import StatisticsTable from "./StatisticsTable";
 import { useFlexLayout, useResizeColumns, useTable } from "react-table";
 import { statisticsRows } from "../utils/stats";
@@ -27,6 +27,8 @@ const infos = [
 ];
 
 const Summary = (props) => {
+  const [isTitleColSticky, setTitleColSticky] = useState(true);
+
   /* ++++++++++++++ Helper functions ++++++++++++++ */
   const renderOptions = (text) => {
     return text.split(/[\s]+-/).map((option, i) => (
@@ -96,6 +98,7 @@ const Summary = (props) => {
           accessor: tableHeaderRow.id,
           Header: tableHeaderRow.name,
           minWidth: 280,
+          sticky: "left",
         });
       }
     });
@@ -173,15 +176,31 @@ const Summary = (props) => {
 
   return (
     <div id="summary">
+      <h2>Benchmark Setup</h2>
       <div id="benchmark_setup">
-        <h2>Benchmark Setup</h2>
+        <form id="stickyform">
+          <label title="Fix the first column" htmlFor="fixed-row-title">
+            Fixed row title:
+          </label>
+          <input
+            id="fixed-row-title"
+            name="fixed"
+            type="checkbox"
+            style={{ width: 20, height: 20 }}
+            checked={isTitleColSticky}
+            onChange={({ target }) => setTitleColSticky(target.checked)}
+          />
+        </form>
         {/* Benchmark Setup Table using react-table  */}
         <table {...getTableProps()} style={{ border: "1px solid black" }}>
           <tbody {...getTableBodyProps()}>
             {headers.map((col, index) => {
               return (
                 <tr key={index}>
-                  <th {...col.getHeaderProps()}>
+                  <th
+                    {...col.getHeaderProps()}
+                    className={`${isTitleColSticky && "sticky"}`}
+                  >
                     {col.render("Header")}
                     <div
                       {...col.getResizerProps()}
