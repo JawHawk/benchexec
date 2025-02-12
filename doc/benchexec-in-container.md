@@ -47,7 +47,8 @@ or
 ```
 docker run --privileged --cap-drop=all -t my-container benchexec <arguments>
 ```
-
+If you want BenchExec to use `fuse-overlayfs` in the container,
+also specify `--device /dev/fuse`.
 
 ## BenchExec in Interactive Containers
 
@@ -121,7 +122,7 @@ Dockerfile is located to build the container.
 
 Start the image with
 ```
-podman run --cgroups=split \
+podman run --security-opt unmask=/sys/fs/cgroup --cgroups=split \
   --security-opt unmask=/proc/* \
   --security-opt seccomp=unconfined \
   -it <tag>

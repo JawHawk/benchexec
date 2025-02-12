@@ -20,6 +20,7 @@ SPDX-License-Identifier: Apache-2.0
 
 The following packages are optional but recommended dependencies:
 - [cpu-energy-meter] will let BenchExec measure energy consumption on Intel CPUs.
+- [fuse-overlayfs] (version 1.10 or newer) allows to use the overlay directory mode for containers in cases where the kernel-based overlayfs does not work.
 - [libseccomp2] provides better container isolation.
 - [LXCFS] provides better container isolation.
 - [coloredlogs] provides nicer log output.
@@ -115,11 +116,11 @@ Of course you can also install BenchExec in a virtualenv if you are familiar wit
 On systems without systemd you can omit the `[systemd]` part.
 
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
-and install [cpu-energy-meter], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
+and install [cpu-energy-meter], [fuse-overlayfs], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
 
 ### Containerized Environments
 
-Please refer to the [dedicated guide](doc/benchexec-in-container.md) for the
+Please refer to the [dedicated guide](benchexec-in-container.md) for the
 necessary steps to install BenchExec inside a container.
 
 **IMPORTANT**: In any case, cgroups with all relevant controllers need to be
@@ -137,7 +138,7 @@ otherwise pip will try to download and build this module,
 which needs a compiler and several development header packages.
 
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
-and install [cpu-energy-meter], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
+and install [cpu-energy-meter], [fuse-overlayfs], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
 
 
 ## Kernel Requirements
@@ -152,8 +153,10 @@ For other distributions, please read the following detailed requirements.
 
 Except on Ubuntu, the full feature set of BenchExec is only usable
 on **Linux 5.11 or newer**, so we suggest at least this kernel version.
+And if your system is using cgroups v2 (cf. below),
+the full feature set requires **Linux 5.19 or newer**.
 
-On older kernels, you need to avoid using the overlay filesystem (cf. below),
+On kernels older than 5.11, you need to avoid using the kernel-based overlay filesystem (cf. below),
 all other features are supported.
 However, we strongly recommend to use at least **Linux 4.14 or newer**
 because it reduces the overhead of BenchExec's memory measurements and limits.
@@ -186,8 +189,13 @@ that are not usable on all distributions by default:
 - **Unprivileged Overlay Filesystem**: This is only available since Linux 5.11
   (kernel option `CONFIG_OVERLAY_FS`),
   but also present in all Ubuntu kernels, even older ones.
-  Users of older kernels on other distributions can still use container mode, but have to choose a different mode
-  of mounting the file systems in the container, e.g., with `--read-only-dir /` (see below).
+  Users of older kernels on other distributions can still use container mode,
+  but have to install [fuse-overlayfs] or choose a different mode
+  of mounting the file systems in the container, e.g., with `--read-only-dir /`
+  (cf. [container configuration](container.md#directory-access-modes)).
+  Note that the kernel-based overlayfs does not support some specific configurations
+  (such as the default mode of overlay for `/`),
+  so [fuse-overlayfs] is often useful or required anyway.
 
 If container mode does not work, please check the [common problems](container.md#common-problems).
 
@@ -212,6 +220,9 @@ On Debian/Ubuntu, this could be done with the following steps and rebooting afte
 echo 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"' | sudo tee /etc/default/grub.d/cgroupsv1-for-benchexec.cfg
 sudo update-grub
 ```
+
+Furthermore, with cgroups v2 Linux 5.19 or newer is required
+in order to have memory measurements.
 
 ### Setting up Cgroups v2 on Machines with systemd
 
@@ -377,6 +388,7 @@ Please refer to the [development instructions](DEVELOPMENT.md).
 
 [coloredlogs]: https://pypi.org/project/coloredlogs/
 [cpu-energy-meter]: https://github.com/sosy-lab/cpu-energy-meter
+[fuse-overlayfs]: https://github.com/containers/fuse-overlayfs
 [libseccomp2]: https://github.com/seccomp/libseccomp
 [LXCFS]: https://github.com/lxc/lxcfs
 [pqos]: https://github.com/intel/intel-cmt-cat/tree/master/pqos

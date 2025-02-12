@@ -26,7 +26,6 @@ from benchexec import (
     util,
 )
 
-
 tool: tooladapter.CURRENT_BASETOOL = None
 
 
@@ -37,6 +36,12 @@ class ContainerizedTool(object):
     The module and the subclass instance will be loaded in a subprocess that has been
     put into a container. This means, for example, that the code of this module cannot
     make network connections and that any changes made to files on disk have no effect.
+
+    Because we use the multiprocessing module and thus communication is done
+    via serialization with pickle, this is not a secure solution:
+    Code from the tool-info module can use pickle to execute arbitary code
+    in the main BenchExec process.
+    But the use of containers in BenchExec is for safety and robustness, not security.
     """
 
     def __init__(self, tool_module, config):
@@ -49,19 +54,23 @@ class ContainerizedTool(object):
         # We use multiprocessing.Pool as an easy way for RPC with another process.
         self._pool = multiprocessing.Pool(1, _init_worker_process)
 
-        container_options = containerexecutor.handle_basic_container_args(config)
-        temp_dir = tempfile.mkdtemp(prefix="Benchexec_tool_info_container_")
-
         # Call function that loads tool module and returns its doc
         try:
-            self.__doc__ = self._pool.apply(
-                _init_container_and_load_tool,
-                [tool_module, temp_dir],
-                container_options,
-            )
+            self._setup_container(tool_module, config)
         except BaseException as e:
             self._pool.terminate()
             raise e
+
+    def _setup_container(self, tool_module, config):
+        container_options = containerexecutor.handle_basic_container_args(config)
+        temp_dir = tempfile.mkdtemp(prefix="Benchexec_tool_info_container_")
+
+        try:
+            self.__doc__, _ = self._pool.apply(
+                _init_container_and_load_tool,
+                [_init_container, tool_module, temp_dir],
+                container_options,
+            )
         finally:
             # Outside the container, the temp_dir is just an empty directory, because
             # the tmpfs mount is only visible inside. We can remove it immediately.
@@ -119,15 +128,15 @@ def _init_worker_process():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
-def _init_container_and_load_tool(tool_module, *args, **kwargs):
+def _init_container_and_load_tool(initializer, tool_module, *args, **kwargs):
     """Initialize container for the current process and load given tool-info module."""
     try:
-        _init_container(*args, **kwargs)
+        initializer_ret = initializer(*args, **kwargs)
     except OSError as e:
         if container.check_apparmor_userns_restriction(e):
             raise BenchExecException(container._ERROR_MSG_USER_NS_RESTRICTION)
         raise BenchExecException(f"Failed to configure container: {e}")
-    return _load_tool(tool_module)
+    return _load_tool(tool_module), initializer_ret
 
 
 def _init_container(
@@ -200,7 +209,6 @@ def _init_container(
 
     # Container config
     container.setup_user_mapping(os.getpid(), uid, gid)
-    _setup_container_filesystem(temp_dir, dir_modes, container_system_config)
     if container_system_config:
         socket.sethostname(container.CONTAINER_HOSTNAME)
     if not network_access:
@@ -218,6 +226,10 @@ def _init_container(
         # block parent such that it does nothing
         os.waitpid(pid, 0)
         os._exit(0)
+
+    # We setup the container's filesystem in the child process.
+    # Delaying this until after the fork can avoid "Transport endpoint not connected" issue.
+    _setup_container_filesystem(temp_dir, dir_modes, container_system_config)
 
     # Finalize container setup in child
     container.mount_proc(container_system_config)  # only possible in child

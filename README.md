@@ -17,13 +17,12 @@ SPDX-License-Identifier: Apache-2.0
 [![DOI](https://zenodo.org/badge/30758422.svg)](https://zenodo.org/badge/latestdoi/30758422)
 
 **News and Updates**:
-- Two projects accepted for BenchExec as part of [Google Summer of Code](https://summerofcode.withgoogle.com/)!
-  We are happy that [Haoran Yang](https://summerofcode.withgoogle.com/programs/2024/projects/UzhlnEel)
-  and [Eshaan Aggarwal](https://summerofcode.withgoogle.com/programs/2024/projects/l7WEa0Gz)
-  will work to improve BenchExec (click on their names for more information about their projects)
-  and are thankful to them and to Google for providing the opportunity.
+- Successful [Google Summer of Code](https://summerofcode.withgoogle.com/) project by
+  [Haoran Yang](https://summerofcode.withgoogle.com/programs/2024/projects/UzhlnEel)
+  brings integration of [fuse-overlayfs](https://github.com/containers/fuse-overlayfs/) into BenchExec 3.25!  
+  This makes BenchExec's default directory configuration for the container mode work out-of-the-box again
+  without having to pass parameters such as `--read-only-dir /`.
 - BenchExec 3.18 brings support for systems with cgroups v2!
-- Linux kernel 5.11 finally [makes it possible](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#kernel-requirements) to use all BenchExec features on distributions other than Ubuntu!
 - We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#debianubuntu)).
 - An extended version of our paper on BenchExec and its background was published as open access in the journal STTT,
   you can read [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) online.
@@ -65,11 +64,13 @@ Unlike other benchmarking frameworks,
 BenchExec is able to reliably measure and limit resource usage
 of the benchmarked tool even if the latter spawns subprocesses.
 In order to achieve this,
-it uses the [cgroups feature](https://www.kernel.org/doc/Documentation/cgroup-v1/cgroups.txt)
+it uses the [cgroups feature](https://docs.kernel.org/admin-guide/cgroup-v2.html)
 of the Linux kernel to correctly handle groups of processes.
 For proper isolation of the benchmarks, it uses (if available)
 Linux [user namespaces](http://man7.org/linux/man-pages/man7/namespaces.7.html)
-and an [overlay filesystem](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
+and an overlay filesystem
+(either [kernel-based](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
+or [fuse-overlayfs](https://github.com/containers/fuse-overlayfs/))
 to create a [container](https://github.com/sosy-lab/benchexec/blob/main/doc/container.md)
 that restricts interference of the executed tool with the benchmarking host.
 More information on why this is necessary and the problems with other tools
@@ -136,15 +137,19 @@ Contributors:
 - [Laura Bschor](https://github.com/laurabschor)
 - [Thomas Bunk](https://github.com/TBunk)
 - [Montgomery Carter](https://github.com/MontyCarter)
+- [Po-Chun Chien](https://github.com/Po-Chun-Chien)
 - [Andreas Donig](https://github.com/adonig)
+- [Florian Eder](https://github.com/schroeding)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
 - [Robin Gloster](https://github.com/globin)
 - [Sam Grayson](https://github.com/charmoniumQ)
 - Peter Häring
 - [Florian Heck](https://github.com/fheck)
+- [Chinmay Joshi](https://github.com/JawHawk)
 - [George Karpenkov](http://metaworld.me/)
 - [Mike Kazantsev](http://fraggod.net/)
 - [Hugo van Kemenade](https://github.com/hugovk)
+- [Tobias Kleinert](https://github.com/Sowasvonbot)
 - [Michael Lachner](https://github.com/lachnerm)
 - [Thomas Lemberger](https://www.sosy-lab.org/people/lemberger/)
 - [Lorenz Leutgeb](https://github.com/lorenzleutgeb)
@@ -152,7 +157,7 @@ Contributors:
 - Stefan Löwe
 - [Stephan Lukasczyk](https://github.com/stephanlukasczyk)
 - [Tobias Meggendorfer](https://github.com/incaseoftrouble)
-- [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
+- Alexander von Rhein
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
 - [Dennis Simon](https://github.com/DennisSimon)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
