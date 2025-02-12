@@ -249,22 +249,13 @@ const Summary = ({
               id="fixed-row-title"
               name="fixed"
               type="checkbox"
-              style={{ width: 20, height: 20 }}
               checked={isTitleColSticky}
               onChange={({ target }) => setTitleColSticky(target.checked)}
             />
           </form>
         </div>
 
-        <table
-          {...getTableProps()}
-          style={{
-            // Ensures that when the column header is sticky, the table header border
-            // is not cutoff when scrolling horizontally
-            borderCollapse: "separate",
-            borderSpacing: 0,
-          }}
-        >
+        <table {...getTableProps()}>
           <tbody {...getTableBodyProps()}>
             {headers.map((col, index) => {
               return (
@@ -273,7 +264,6 @@ const Summary = ({
                     className={`${isTitleColSticky && "sticky"}`}
                     {...col.getHeaderProps({
                       style: {
-                        borderRight: "3px solid #DDD",
                         ...(col.id === "columnselect" && {
                           height: "3rem",
                           backgroundColor: "#EEE",
@@ -307,7 +297,6 @@ const Summary = ({
                           rowSpan={col.id === "columnselect" ? infos.length : 1}
                           {...row.cells[index].getCellProps()}
                           style={{
-                            borderRight: "3px solid #DDD",
                             padding: col.id === "columnselect" && 0,
                             margin: 0,
                             ...(row.original.hidden && {
@@ -331,7 +320,7 @@ const Summary = ({
                               hiddenCols={hiddenCols}
                             />
                           ) : col.id === "options" ? (
-                            <ul style={{ margin: 0, paddingLeft: 17 }}>
+                            <ul className="options">
                               <Options text={row.values[col.id]} />
                             </ul>
                           ) : col.id === "tool" ? (

@@ -35,6 +35,11 @@ body {
 .infoTooltipContainer {
   position: relative;
   display: inline-block;
+
+  &:hover .infoTooltip{
+    visibility: visible;
+    opacity: 1;
+  }
 }
 
 .infoTooltipIcon {
@@ -167,7 +172,7 @@ $hover-color: darken(white, 20%);
       justify-content: center;
 
       &:hover {
-        background-color: $hover-color;
+        background-color: $hover-color !important;
         cursor: pointer;
       }
     }
@@ -461,6 +466,11 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       display: flex;
       align-items: center;
       padding-left: 8px;
+
+      #fixed-row-title {
+        width: 20px;
+        height: 20px;
+      }
     }
 
     .stickCheckbox {
@@ -471,26 +481,20 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     }
 
     table {
-      border-collapse: collapse;
+      border-collapse: separate;
       width: 100%;
+      border-spacing: 0;
 
       td,
       th {
         border: 1px solid #ddd;
+        border-right: 3px solid #ddd;
         padding: 8px;
       }
 
       .options {
-        ul {
-          margin: 0;
-          padding: 0 0 0 17px;
-        }
-
-        li {
-          text-align: left;
-          font-size: 9pt;
-          list-style: none;
-        }
+          margin: 0 !important;
+          padding: 0 0 0 17px !important;
       }
 
       .benchmark,
@@ -555,8 +559,23 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
             }
 
             .th {
-              padding: 5px;
+              padding: 0;
+              height: 3rem;
+              margin: 0;
+              user-select: none;
 
+              &:first-of-type {
+                border-left: none; 
+              }
+
+              &:not(:first-of-type) {
+                border-left: 1px solid #CCC; 
+              }
+
+              &:not(:last-of-type) {
+                border-right: 1px solid #CCC; 
+              }
+  
               &:not(:first-of-type) {
                 border-right: 1px solid rgba(0, 0, 0, 0.05);
               }
@@ -566,7 +585,13 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
               }
 
               .header-data {
+                padding: 0;
+                margin: 0;
+                align-content: center;
+                align-items: center;
+                cursor: pointer;
                 height: 100%;
+                background-color: #EEE;
               }
 
               .selectColumns {
@@ -580,6 +605,8 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
         .table-body {
           .td {
+            height: 2.3rem;
+            border-top: 1px solid #DDD;
             .cell {
               text-align: right;
               padding: 0;

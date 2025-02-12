@@ -40,14 +40,6 @@ const StatisticsTable = ({ switchToQuantile, tableData, hiddenCols }) => {
             column={column}
             className="header-data clickable"
             title="Show Quantile Plot of this column"
-            style={{
-              cursor: "pointer",
-              padding: 0,
-              margin: 0,
-              alignContent: "center",
-              alignItems: "center",
-              backgroundColor: "#EEE",
-            }}
             onClick={(_) => switchToQuantile(column)}
           />
         ),
@@ -121,16 +113,6 @@ const StatisticsTable = ({ switchToQuantile, tableData, hiddenCols }) => {
                 className: `th header ${header.headers ? "outer " : ""}${
                   header.className || ""
                 }`,
-                style: {
-                  margin: 0,
-                  padding: 0,
-                  borderLeft: index !== 0 ? "1px solid #CCC" : "none",
-                  borderRight:
-                    index !== headerGroup.headers.length - 1
-                      ? "1px solid #CCC"
-                      : "none",
-                  height: "3rem",
-                },
               })}
             >
               {header.render("Header")}
@@ -159,10 +141,6 @@ const StatisticsTable = ({ switchToQuantile, tableData, hiddenCols }) => {
               <div
                 {...cell.getCellProps({
                   className: "td " + (cell.column.className || ""),
-                  style: {
-                    height: "2.3rem",
-                    borderTop: "1px solid #DDD",
-                  },
                 })}
               >
                 {cell.render("Cell")}

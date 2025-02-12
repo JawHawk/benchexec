@@ -11,19 +11,7 @@ import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 
 const IconWithTooltip = ({ message }) => {
   return (
-    <div
-      className="infoTooltipContainer"
-      onMouseEnter={(e) => {
-        const tooltip = e.currentTarget.querySelector(".infoTooltip");
-        tooltip.style.visibility = "visible";
-        tooltip.style.opacity = 1;
-      }}
-      onMouseLeave={(e) => {
-        const tooltip = e.currentTarget.querySelector(".infoTooltip");
-        tooltip.style.visibility = "hidden";
-        tooltip.style.opacity = 0;
-      }}
-    >
+    <div className="infoTooltipContainer">
       <FontAwesomeIcon icon={faInfoCircle} className="infoTooltipIcon" />
       <span className="infoTooltip">{message}</span>
     </div>
